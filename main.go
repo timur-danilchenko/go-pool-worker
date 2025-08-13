@@ -1,16 +1,18 @@
 package main
 
+import "sync"
+
 type Task func()
 
 func WorkerPool(m []Task, n int) {
 	tasksChan := make(chan Task, len(m))
-	waitWorkers := make(chan struct{}, n)
+	wg := sync.WaitGroup{}
 
 	for range n {
 		go func() {
-			defer func() {
-				waitWorkers <- struct{}{}
-			}()
+			wg.Add(1)
+			defer wg.Done()
+
 			for true {
 				task, ok := <-tasksChan
 				if !ok {
@@ -26,7 +28,5 @@ func WorkerPool(m []Task, n int) {
 	}
 	close(tasksChan)
 
-	for range n {
-		<-waitWorkers
-	}
+	wg.Wait()
 }
