@@ -4,7 +4,13 @@ import "sync"
 
 type Task func()
 
-func WorkerPool(m []Task, n int) {
+type Worker struct {
+	ID         int
+	BufferSize int
+	Tasks      chan Task
+}
+
+func (w *Worker) AddTask(m []Task, n int) {
 	tasksChan := make(chan Task, len(m))
 	wg := sync.WaitGroup{}
 
@@ -29,4 +35,16 @@ func WorkerPool(m []Task, n int) {
 	close(tasksChan)
 
 	wg.Wait()
+}
+
+func main() {
+	worker := Worker{
+		ID:         1,
+		BufferSize: 10,
+		Tasks:      make(chan Task),
+	}
+
+	go func(worker Worker) {
+
+	}(worker)
 }
